@@ -22,7 +22,9 @@ class BinaryClassPerceptron:
         """
         # Initialise weights
         rng = np.random.default_rng(self.random_state)  # Initialise random number generator rng
-        self.w_ = rng.normal(scale=0.01, size=1 + X.shape[1])  # TODO make sure these are all non-zero
+        self.w_ = rng.normal(scale=0.01, size=1 + X.shape[1])
+        while np.sum(np.absolute(self.w_)) == 0:  # Make sure weights are not all zero
+            self.w_ = rng.normal(scale=0.01, size=1 + X.shape[1])
 
         # Initialise errors
         self.errors_ = np.array([])
@@ -36,31 +38,33 @@ class BinaryClassPerceptron:
             self.errors_ = np.append(self.errors_, errors)
         return self
 
-    def net_input(self, X: np.array) -> float:
+    def net_input(self, X: np.array) -> np.array:
         """
         Computes the net input of the input example
-        :param X: 1x(m+1) example-matrix
+        :param X: nx(m+1) example-matrix
         :return: net input
         """
-        return np.dot(np.append([1], X), self.w_)
+        return np.dot(X, self.w_[1:]) + self.w_[0]  # Split up into w_[1:] and w[0] to handle matrix inputs of X
 
-    def predict(self, X: np.array) -> int:
+    def predict(self, X: np.array) -> np.array:
         """
         Predicts the class (in {positive, negative}) of a given input example
         :param X: 1x(m+1) example-matrix
         :return: 1 for predicting the positive class and -1 otherwise
         """
-        return 1 if self.net_input(X) >= 0 else -1
+        return np.where(self.net_input(X) >= 0.0, 1, -1)
 
 
 if __name__ == "__main__":
     from config import PATH_TO_DATA
     import os
 
-    X = np.load(os.path.join(PATH_TO_DATA, 'training_examples_iris.npy'))
-    y = np.load(os.path.join(PATH_TO_DATA, 'training_target_iris.npy'))
+    X = np.load(os.path.join(PATH_TO_DATA, "training_examples_iris.npy"))
+    y = np.load(os.path.join(PATH_TO_DATA, "training_target_iris_setosa.npy"))
 
     bcp = BinaryClassPerceptron()
     bcp.fit(X, y)
-    pass
+    pred = bcp.predict(X)
+    print(pred)
+
 
