@@ -29,7 +29,7 @@ class BinaryClassPerceptron:
         # Initialise errors
         self.errors_ = np.array([])
 
-        for _ in range(self.n_iter):
+        for _ in range(self.n_iter):  # TODO make sure you return the weights that resulted in the lowest classification error
             errors = 0
             for xi, target in zip(X, y):
                 update = self.eta * (target - self.predict(xi)) * np.append([1], xi)
@@ -41,7 +41,7 @@ class BinaryClassPerceptron:
     def net_input(self, X: np.array) -> np.array:
         """
         Computes the net input of the input example
-        :param X: nx(m+1) example-matrix
+        :param X: nxm example-matrix
         :return: net input
         """
         return np.dot(X, self.w_[1:]) + self.w_[0]  # Split up into w_[1:] and w[0] to handle matrix inputs of X
@@ -50,9 +50,17 @@ class BinaryClassPerceptron:
         """
         Predicts the class (in {positive, negative}) of a given input example
         :param X: 1x(m+1) example-matrix
-        :return: 1 for predicting the positive class and -1 otherwise
+        :return: A numpy array with 1 for predicting the positive class and -1 otherwise
         """
         return np.where(self.net_input(X) >= 0.0, 1, -1)
+
+    def confidence_score(self, X: np.array) -> np.array:
+        """
+        Computes the confidence score of a prediction for each example in the example-matrix
+        :param X: nxm example-matrix
+        :return: Confidence scores for each prediction in the example matrix
+        """
+        return np.absolute(self.net_input(X))
 
 
 if __name__ == "__main__":
