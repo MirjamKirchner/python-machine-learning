@@ -17,7 +17,7 @@ class AdalinePerceptron(BinaryClassPerceptron):
 
     def fit(self, X: np.array, y: np.array):
         """
-        Fits the weights of the perceptron to minimise the prediction error
+        Fits the weights of the perceptron to minimise the prediction error using gradient decent
         :param X: nxm matrix where rows represent examples, and columns features
         :param y: a nx1 target-matrix (vector)
         :return: None
