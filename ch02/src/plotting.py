@@ -1,5 +1,6 @@
 import numpy as np
 import seaborn as sns
+import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
@@ -63,7 +64,7 @@ def plot_comparison_of_adaline_learning_rates(X: np.array, y: np.array, etas=Non
 
 
 def plot_decision_surface(X: np.array, y: np.array,  classifier, resolution=0.02, save_fig=True, xlabel="x",
-                          ylabel="y"):
+                          ylabel="y", is_test=None):
     x1_min, x1_max = X[:, 0].min()-1, X[:, 0].max()+1
     x2_min, x2_max = X[:, 1].min() - 1, X[:, 1].max() + 1
     xx1, xx2 = np.meshgrid(np.arange(x1_min, x1_max, resolution), np.arange(x2_min, x2_max, resolution))
@@ -71,7 +72,12 @@ def plot_decision_surface(X: np.array, y: np.array,  classifier, resolution=0.02
     Z = classifier.predict(X_mesh)
     Z = Z.reshape(xx1.shape)
     plt.contourf(xx1, xx2, Z, alpha=0.3)
-    g = sns.scatterplot(x=X[:, 0], y=X[:, 1], style=y)
+    if is_test is None:
+        df = pd.DataFrame(np.concatenate((X, y.reshape((-1, 1))), axis=1), columns=["X0", "X1", "Class"])
+        g = sns.scatterplot(data=df, x="X0", y="X1", style="Class")
+    else:
+        df = pd.DataFrame(np.concatenate((X, y.reshape((-1, 1)), is_test.reshape((-1, 1))), axis=1), columns=["X0", "X1", "Class", "Is_test_set"])
+        g = sns.scatterplot(data=df, x="X0", y="X1", style="Class", hue="Is_test_set")
     g.set_xlim(xx1.min(), xx1.max())
     g.set_ylim(xx2.min(), xx2.max())
     g.set(title="Decision surface of the " + str(type(classifier).__name__) + "-classifier", xlabel=xlabel,
